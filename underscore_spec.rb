@@ -95,9 +95,7 @@ describe 'Underscore.js' do
           stooge['age']
         }.to_hash
       }
-      it {
-        should == {'name' => 'curly','age' => 60}
-      }
+      it {should == {'name' => 'curly','age' => 60}}
     end
     describe 'min' do
       subject {
@@ -348,10 +346,10 @@ describe 'Underscore.js' do
     describe 'tap' do
       subject {
         result = []
-        result << @_[[1,2,3,200]].chain().
-          select(lambda {|number,index,context|number % 2 == 0}).
+        result << @_[[1,2,3,200]].chain.
+          select{|number,index,context|number % 2 == 0}.
           tap{|value|result << value}.
-          map(lambda {|number,index,context| number * number}).
+          map{|number,index,context| number * number}.
           value
         }
       it {should == [[2,200],[4,40000]]}
