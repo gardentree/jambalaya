@@ -6,10 +6,7 @@
 #
 ################################################################################
 
-require 'rubygems'
-require 'rspec'
-require 'java'
-include_class('com.github.gardentree.jambalaya.Jambalaya')
+require 'jambalaya-rspec'
 
 describe 'Underscore.js' do
   before do

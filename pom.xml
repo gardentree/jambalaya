@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.gardentree</groupId>
 	<artifactId>jambalaya</artifactId>
-	<version>0.1</version>
+	<version>0.0.2</version>
 	<packaging>jar</packaging>
 	<name>jambalaya</name>
 	<url>http://maven.apache.org</url>

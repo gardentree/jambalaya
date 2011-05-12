@@ -1,7 +1,7 @@
 #JavaScriptをRubyの中に
 Ruby上でJavaScriptを動作させます。
 
-##使用例：[Underscore.js](http://documentcloud.github.com/underscore/)のテストを[RSpec](http://relishapp.com/rspec)で書いた。
+##使用例：[RSpec](http://relishapp.com/rspec)で[Underscore.js](http://documentcloud.github.com/underscore/)をテストした。
 <pre>
 var stooges = [{name : 'curly', age : 25}, {name : 'moe', age : 21}, {name : 'larry', age : 23}];
 var youngest = _(stooges).chain()
