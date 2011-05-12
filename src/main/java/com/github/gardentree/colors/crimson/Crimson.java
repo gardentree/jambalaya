@@ -1,4 +1,4 @@
-package com.github.gardentree.color.crimson;
+package com.github.gardentree.colors.crimson;
 
 import org.jruby.Ruby;
 import org.jruby.javasupport.JavaEmbedUtils;

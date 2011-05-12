@@ -1,4 +1,4 @@
-package com.github.gardentree.jambalaya;
+package com.github.gardentree.colors.violet;
 
 import org.mozilla.javascript.Scriptable;
 

@@ -15,7 +15,7 @@ import org.jruby.runtime.builtin.IRubyObject;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.github.gardentree.color.crimson.CrimsonRuntime;
+import com.github.gardentree.colors.crimson.CrimsonRuntime;
 import com.github.gardentree.utilities.Calling;
 import com.github.gardentree.utilities.Entirety;
 import com.github.gardentree.utilities.Resource;

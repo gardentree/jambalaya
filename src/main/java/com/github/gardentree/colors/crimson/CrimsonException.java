@@ -1,4 +1,4 @@
-package com.github.gardentree.color.crimson;
+package com.github.gardentree.colors.crimson;
 
 public class CrimsonException extends RuntimeException {
 	public CrimsonException(final String message) {

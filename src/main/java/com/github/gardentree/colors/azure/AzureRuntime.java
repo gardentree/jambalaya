@@ -1,4 +1,4 @@
-package com.github.gardentree.color.azure;
+package com.github.gardentree.colors.azure;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

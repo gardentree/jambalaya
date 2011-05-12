@@ -11,7 +11,13 @@ public class Resource {
 		final StackTraceElement[] traces = new Exception().getStackTrace();
 
 		try {
-			return ClassLoader.getSystemClassLoader().loadClass(traces[1].getClassName()).getResource(path);
+			final Class<?> target = ClassLoader.getSystemClassLoader().loadClass(traces[1].getClassName());
+			final URL url = target.getResource(path);
+			if (url == null) {
+				throw new IllegalArgumentException(target.getResource("") + path + " is not exist");
+			}
+
+			return url;
 		}
 		catch (ClassNotFoundException ex) {
 			throw new Error(ex);

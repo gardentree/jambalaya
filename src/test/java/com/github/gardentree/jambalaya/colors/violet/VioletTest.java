@@ -1,4 +1,4 @@
-package com.github.gardentree.jambalaya;
+package com.github.gardentree.jambalaya.colors.violet;
 
 import static org.junit.Assert.*;
 
@@ -16,8 +16,9 @@ import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
-import com.github.gardentree.color.azure.AzureRuntime;
-import com.github.gardentree.color.crimson.CrimsonRuntime;
+import com.github.gardentree.colors.azure.AzureRuntime;
+import com.github.gardentree.colors.crimson.CrimsonRuntime;
+import com.github.gardentree.colors.violet.Violet;
 import com.github.gardentree.utilities.Entirety;
 import com.github.gardentree.utilities.Resource;
 
@@ -63,7 +64,7 @@ public class VioletTest {
 	}
 	@Test
 	public void deriveCrimsonFromForPrototype() throws IOException, URISyntaxException {
-		final IRubyObject actual = m_target.deriveCrimsonFrom(m_azure.evaluate(Entirety.getFromFile(Resource.getUrl("violet/prototype.js"))).getNativeObject());
+		final IRubyObject actual = m_target.deriveCrimsonFrom(m_azure.evaluate(Entirety.getFromFile(Resource.getUrl("prototype.js"))).getNativeObject());
 
 		assertEquals(RubyObject.class	,actual.getClass());
 		assertEquals("c"				,actual.callMethod(m_context,"constructor").toString());
@@ -97,7 +98,7 @@ public class VioletTest {
 	}
 	@Test
 	public void deriveAzureFromForObject() throws IOException, URISyntaxException {
-		final Object actual = m_target.deriveAzureFrom(m_crimson.evaluate(Entirety.getFromFile(Resource.getUrl("violet/object.rb"))));
+		final Object actual = m_target.deriveAzureFrom(m_crimson.evaluate(Entirety.getFromFile(Resource.getUrl("object.rb"))));
 
 		assertTrue(actual instanceof ScriptableObject);
 		final ScriptableObject object = (ScriptableObject)actual;

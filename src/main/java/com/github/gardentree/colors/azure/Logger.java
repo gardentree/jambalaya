@@ -1,22 +1,14 @@
-package com.github.gardentree.jambalaya;
+package com.github.gardentree.colors.azure;
 
 import java.lang.reflect.Member;
 import java.util.Arrays;
 
-import org.jruby.RubyException;
-import org.jruby.RubyLocalJumpError;
-import org.jruby.exceptions.JumpException;
-import org.jruby.exceptions.RaiseException;
-import org.jruby.runtime.Block;
-import org.jruby.runtime.builtin.IRubyObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.FunctionObject;
 import org.mozilla.javascript.Scriptable;
 
-import com.github.gardentree.color.azure.AzureRuntime;
-
-class Logger extends FunctionObject {
+public class Logger extends FunctionObject {
 	private final AzureRuntime m_azure = AzureRuntime.newInstance();
 
     public Logger(String name,Scriptable scope) {

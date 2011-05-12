@@ -3,12 +3,15 @@ package com.github.gardentree.jambalaya;
 
 import java.io.File;
 
+
 import org.jruby.Ruby;
 import org.jruby.runtime.builtin.IRubyObject;
 
-import com.github.gardentree.color.azure.Azure;
-import com.github.gardentree.color.azure.AzureRuntime;
-import com.github.gardentree.color.crimson.CrimsonRuntime;
+import com.github.gardentree.colors.azure.Azure;
+import com.github.gardentree.colors.azure.AzureRuntime;
+import com.github.gardentree.colors.azure.Logger;
+import com.github.gardentree.colors.crimson.CrimsonRuntime;
+import com.github.gardentree.colors.violet.Violet;
 import com.github.gardentree.utilities.Entirety;
 
 /**
@@ -21,18 +24,18 @@ public class Jambalaya {
 		//
 	}
 
-	public IRubyObject evaluate(final String script) {
+	public IRubyObject fry(final String script) {
 		final Azure azure = m_violet.getAzure().evaluate(script);
 
 		return m_violet.deriveCrimsonFrom(azure.getNativeObject());
 	}
 
-	public IRubyObject mix(final String pathname,final String specifier,final String[] scripts) throws Exception {
+	public IRubyObject squeeze(final String pathname,final String specifier,final String[] scripts) throws Exception {
 		return execute(pathname,specifier,scripts);
 	}
-	public static IRubyObject squeeze(final String pathname,final String specifier,final String[] scripts) throws Exception {
-		return new Jambalaya().execute(pathname,specifier,scripts);
-	}
+//	public static IRubyObject squeeze(final String pathname,final String specifier,final String[] scripts) throws Exception {
+//		return new Jambalaya().execute(pathname,specifier,scripts);
+//	}
 	IRubyObject execute(final String pathname,final String specifier,final String[] scripts) throws Exception {
 		///////////////////////////////
 		m_violet.getAzure().getNativeScope().put("print",m_violet.getAzure().getNativeScope(),new Logger("print",m_violet.getAzure().getNativeScope()));
@@ -59,10 +62,8 @@ public class Jambalaya {
 
 //			return JavaScriptObject.define((AzurePrimitiveObject)object);
 		}
-		catch (final Exception excepiton) {
-			System.out.println(excepiton.getMessage());
-
-			throw excepiton;
+		catch (final Exception cause) {
+			throw new SilenceException(cause);
 		}
 //		finally {
 //			Context.exit();

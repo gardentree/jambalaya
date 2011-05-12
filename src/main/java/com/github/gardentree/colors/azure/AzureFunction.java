@@ -1,4 +1,4 @@
-package com.github.gardentree.color.azure;
+package com.github.gardentree.colors.azure;
 
 import org.mozilla.javascript.BaseFunction;
 

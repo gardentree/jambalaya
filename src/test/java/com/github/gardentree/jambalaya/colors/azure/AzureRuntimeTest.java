@@ -1,4 +1,4 @@
-package com.github.gardentree.color.azure;
+package com.github.gardentree.jambalaya.colors.azure;
 
 import static org.junit.Assert.*;
 
@@ -7,6 +7,10 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.mozilla.javascript.Scriptable;
+
+import com.github.gardentree.colors.azure.Azure;
+import com.github.gardentree.colors.azure.AzureObject;
+import com.github.gardentree.colors.azure.AzureRuntime;
 
 /**
  * @author garden_tree

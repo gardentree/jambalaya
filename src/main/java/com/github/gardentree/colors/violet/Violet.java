@@ -1,4 +1,4 @@
-package com.github.gardentree.jambalaya;
+package com.github.gardentree.colors.violet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,8 +33,9 @@ import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
-import com.github.gardentree.color.azure.AzureRuntime;
-import com.github.gardentree.color.crimson.CrimsonRuntime;
+import com.github.gardentree.colors.azure.AzureRuntime;
+import com.github.gardentree.colors.crimson.CrimsonRuntime;
+import com.github.gardentree.jambalaya.SilenceException;
 
 /**
  * @author garden_tree

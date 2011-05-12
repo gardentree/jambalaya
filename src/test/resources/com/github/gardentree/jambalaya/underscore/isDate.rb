@@ -1,6 +1,6 @@
 require 'java'
 include_class('com.github.gardentree.jambalaya.Jambalaya')
 jambalaya = Jambalaya.new
-_ = jambalaya.mix("underscore.js","this._",[])
+_ = jambalaya.squeeze("underscore.js","this._",[])
 
-_.isDate(jambalaya.evaluate("new Date();"))
+_.isDate(jambalaya.fry("new Date();"))
