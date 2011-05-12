@@ -1,7 +1,7 @@
 #JavaScriptをRubyの中に
 Ruby上でJavaScriptを動作させます。
 
-##使用例：[RSpec](http://relishapp.com/rspec)で[Underscore.js](http://documentcloud.github.com/underscore/)をテストした。
+##使用例：[RSpec](http://relishapp.com/rspec)で[Underscore.js](http://documentcloud.github.com/underscore/)をテストする。
 <pre>
 var stooges = [{name : 'curly', age : 25}, {name : 'moe', age : 21}, {name : 'larry', age : 23}];
 var youngest = _(stooges).chain()
@@ -11,7 +11,7 @@ var youngest = _(stooges).chain()
   .value();
 => "moe is 21"
 </pre>
-とJavaScriptで書かれた使用例が、以下の様にRSpecでテスト出来ます。
+上記の様にJavaScriptで書かれた使用例が、以下の様にRSpecでテスト出来ます。
 <pre>
 describe 'chain' do
   subject {
@@ -29,9 +29,10 @@ end
 (現状の結果:85 examples, 0 failures, 4 pending)
 
 また、以下のコマンドでテストが実行出来ます。
-(要JRuby&RSpecのインストール)
+(要JRubyのインストール)
 
 <pre>
-set CLASSPATH=distribute\jambalaya-0.1.jar
+jruby -S gem install jambalaya-rspec
+
 jruby -S rspec underscore_spec.rb
 </pre>
