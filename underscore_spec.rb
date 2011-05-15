@@ -11,7 +11,7 @@ require 'jambalaya-rspec'
 describe 'Underscore.js' do
   before do
     @jambalaya = Jambalaya.new
-    @_ = @jambalaya.mix("underscore.js","this._",["require 'rubygems'","require 'rspec'"])
+    @_ = @jambalaya.squeeze("underscore.js","this._",["require 'rubygems'","require 'rspec'"])
   end
 
   describe 'Collection Functions (Arrays or Objects)' do
@@ -89,7 +89,7 @@ describe 'Underscore.js' do
       subject {
         stooges = [{'name' => 'moe','age' => 40},{'name' => 'larry','age' => 50},{'name' => 'curly','age' => 60}]
         @_.max(stooges) {|stooge,index,context|
-          stooge['age']
+          stooge.age
         }.to_hash
       }
       it {should == {'name' => 'curly','age' => 60}}
@@ -110,7 +110,7 @@ describe 'Underscore.js' do
       it {should == 3}
     end
     describe 'toArray' do
-      subject {@jambalaya.evaluate("(function(){ return _.toArray(arguments).slice(0); })(1, 2, 3)")}
+      subject {@jambalaya.fry("(function(){ return _.toArray(arguments).slice(0); })(1,2,3)")}
       it {should == [1.0,2.0,3.0]}
     end
     describe 'size' do
@@ -221,7 +221,7 @@ describe 'Underscore.js' do
     end
     describe 'delay' do
       subject {
-        @jambalaya.evaluate("function setTimeout(callback,wait) {callback()}")
+        @jambalaya.fry("function setTimeout(callback,wait) {callback()}")
 
         flag = false
         @_.delay(lambda {flag = true}, 50, 'logged later');
@@ -232,7 +232,7 @@ describe 'Underscore.js' do
     end
     describe 'defer' do
       subject {
-        @jambalaya.evaluate("function setTimeout(callback,wait) {callback()}")
+        @jambalaya.fry("function setTimeout(callback,wait) {callback()}")
 
         flag = false
         @_.defer {flag = true}
@@ -243,7 +243,7 @@ describe 'Underscore.js' do
     end
     describe 'throttle' do
       subject {
-        @jambalaya.evaluate("function setTimeout(callback,wait) {callback()}")
+        @jambalaya.fry("function setTimeout(callback,wait) {callback()}")
 
         flag = false
         throttled = @_.throttle(lambda {flag = true},100);
@@ -255,8 +255,8 @@ describe 'Underscore.js' do
     end
     describe 'debounce' do
       subject {
-        @jambalaya.evaluate("function setTimeout(callback,wait) {callback()}")
-        @jambalaya.evaluate("function clearTimeout(wait) { /* ??? */ }")
+        @jambalaya.fry("function setTimeout(callback,wait) {callback()}")
+        @jambalaya.fry("function clearTimeout(wait) { /* ??? */ }")
 
         flag = false
         debounce = @_.debounce(lambda {flag = true},100);
@@ -353,8 +353,8 @@ describe 'Underscore.js' do
     end
     describe 'isEqual' do
       before do
-        @moe   = @jambalaya.evaluate("(function(){ return {name: 'moe',luckyNumbers: [13,27,34]}})()")
-        @clone = @jambalaya.evaluate("(function(){ return {name: 'moe',luckyNumbers: [13,27,34]}})()")
+        @moe   = @jambalaya.fry("(function(){ return {name: 'moe',luckyNumbers: [13,27,34]}})()")
+        @clone = @jambalaya.fry("(function(){ return {name: 'moe',luckyNumbers: [13,27,34]}})()")
       end
       context 'native' do
         subject {@moe == @clone}
@@ -379,7 +379,7 @@ describe 'Underscore.js' do
     end
     describe 'isElement' do
       subject {
-        element = @jambalaya.evaluate("(function(){ return {nodeType: 1}; })()")
+        element = @jambalaya.fry("(function(){ return {nodeType: 1}; })()")
         @_.isElement(element)
       }
       it {pending 'Element?'
@@ -388,7 +388,7 @@ describe 'Underscore.js' do
     end
     describe 'isArray' do
       context do
-        subject {@jambalaya.evaluate("(function(){ return _.isArray(arguments); })();")}
+        subject {@jambalaya.fry("(function(){ return _.isArray(arguments); })();")}
         it {should be_false}
       end
       context do
@@ -398,7 +398,7 @@ describe 'Underscore.js' do
     end
     describe 'isArguments' do
       context do
-        subject {@jambalaya.evaluate("(function(){return _.isArguments(arguments);})(1,2,3);")}
+        subject {@jambalaya.fry("(function(){return _.isArguments(arguments);})(1,2,3);")}
         it {should be_true}
       end
       context do
@@ -427,13 +427,13 @@ describe 'Underscore.js' do
       it {should be_false}
     end
     describe 'isDate' do
-      subject {@_.isDate(@jambalaya.evaluate("new Date();"))}
+      subject {@_.isDate(@jambalaya.fry("new Date();"))}
       it {
         should be_true
       }
     end
     describe 'isRegExp' do
-      subject {@_.isRegExp(@jambalaya.evaluate("/moe/;"))}
+      subject {@_.isRegExp(@jambalaya.fry("/moe/;"))}
       it {
         should be_true
       }
@@ -444,11 +444,11 @@ describe 'Underscore.js' do
         it {should be_true}
       end
       context do
-        subject {@jambalaya.evaluate("isNaN(undefined);")}
+        subject {@jambalaya.fry("isNaN(undefined);")}
         it {should be_true}
       end
       context do
-        subject {@_.isNaN(@jambalaya.evaluate("undefined"))}
+        subject {@_.isNaN(@jambalaya.fry("undefined"))}
         it {should be_false}
       end
     end
@@ -458,12 +458,12 @@ describe 'Underscore.js' do
         it {should be_true}
       end
       context do
-        subject {@_.isNull(@jambalaya.evaluate("undefined"))}
+        subject {@_.isNull(@jambalaya.fry("undefined"))}
         it {should be_false}
       end
     end
     describe 'isUndefined' do
-      subject {@_.isUndefined(@jambalaya.evaluate("this.jambalaya"))}
+      subject {@_.isUndefined(@jambalaya.fry("this.jambalaya"))}
       it {pending 'Undefined?'
         should be_true
       }

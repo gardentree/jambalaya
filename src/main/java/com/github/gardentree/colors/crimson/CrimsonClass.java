@@ -1,7 +1,11 @@
 package com.github.gardentree.colors.crimson;
 
+import java.util.Map.Entry;
+import java.util.Set;
+
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
+import org.jruby.internal.runtime.methods.DynamicMethod;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.runtime.callback.Callback;
@@ -22,5 +26,9 @@ public class CrimsonClass extends Crimson<RubyClass> {
 
 	public void defineMethod(final String name,final Callback callback) {
 		getNativeObject().defineMethod(name,callback);
+	}
+
+	public Set<Entry<String,DynamicMethod>> getMethods() {
+		return getNativeObject().getMethods().entrySet();
 	}
 }

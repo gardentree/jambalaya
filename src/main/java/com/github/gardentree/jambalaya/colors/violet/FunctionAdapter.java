@@ -1,11 +1,7 @@
-package com.github.gardentree.colors.violet;
+package com.github.gardentree.jambalaya.colors.violet;
 
 import java.lang.reflect.Member;
-import java.util.Arrays;
 
-import org.jruby.RubyProc;
-import org.jruby.runtime.Block;
-import org.jruby.runtime.builtin.IRubyObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.FunctionObject;

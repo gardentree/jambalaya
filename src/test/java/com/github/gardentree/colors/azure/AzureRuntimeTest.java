@@ -1,7 +1,8 @@
-package com.github.gardentree.jambalaya.colors.azure;
+package com.github.gardentree.colors.azure;
 
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -9,8 +10,11 @@ import org.junit.Test;
 import org.mozilla.javascript.Scriptable;
 
 import com.github.gardentree.colors.azure.Azure;
+import com.github.gardentree.colors.azure.AzureBasicObject;
 import com.github.gardentree.colors.azure.AzureObject;
 import com.github.gardentree.colors.azure.AzureRuntime;
+import com.github.gardentree.utilities.Entirety;
+import com.github.gardentree.utilities.Resource;
 
 /**
  * @author garden_tree
@@ -43,7 +47,7 @@ public class AzureRuntimeTest {
 		assertEquals(expected,java);
 	}
 	@Test
-	public void test() {
+	public void testIds() {
 		final Map<Object,Object> object = new LinkedHashMap<Object,Object>();
 		object.put("one"	,1);
 		object.put("two"	,2);
@@ -52,5 +56,21 @@ public class AzureRuntimeTest {
 		final Scriptable acutal = (Scriptable)m_runtime.deriveJavaScriptFrom(object);
 
 		assertArrayEquals(new Object[]{"one","two","three"},acutal.getIds());
+	}
+	@Test
+	public void testGetTopObject() {
+		final AzureRuntime runtime = AzureRuntime.newInstance();
+
+		final AzureBasicObject object = (AzureBasicObject)runtime.evaluate(Entirety.getFromFile(Resource.getUrl("global.js")));
+
+		assertEquals(Arrays.asList("before","after"),object.getKeys());
+		assertEquals(Arrays.asList("before"),runtime.getTopObject().getKeys());
+	}
+
+	@Test
+	public void testWrapForString() {
+		final Azure<?> actual = m_runtime.wrap("abc");
+
+		assertEquals(NativeString.class,actual.getNativeObject().getClass());
 	}
 }

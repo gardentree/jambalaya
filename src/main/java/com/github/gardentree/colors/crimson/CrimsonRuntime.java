@@ -1,5 +1,6 @@
 package com.github.gardentree.colors.crimson;
 
+import java.net.URL;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -14,6 +15,8 @@ import org.jruby.RubyHash;
 import org.jruby.javasupport.JavaEmbedUtils;
 import org.jruby.runtime.builtin.IRubyObject;
 
+import com.github.gardentree.utilities.Entirety;
+
 public class CrimsonRuntime {
 	private final Ruby m_runtime;
 
@@ -26,8 +29,18 @@ public class CrimsonRuntime {
 	public CrimsonObject getTopObject() {
 		return new CrimsonObject(m_runtime.getTopSelf());
 	}
+	public IRubyObject evaluate(final URL scirpt) {
+		return evaluate(Entirety.getFromFile(scirpt));
+	}
 	public IRubyObject evaluate(final String script) {
 		return m_runtime.evalScriptlet(script);
+	}
+
+	public CrimsonClass newClass() {
+		return new CrimsonClass(RubyClass.newClass(getNativeRuntime(),getNativeRuntime().getObject()));
+	}
+	public CrimsonClass newClass(final CrimsonClass base) {
+		return new CrimsonClass(RubyClass.newClass(getNativeRuntime(),base.getNativeObject()));
 	}
 
 	public IRubyObject deriveRubyFrom(final Object value) {

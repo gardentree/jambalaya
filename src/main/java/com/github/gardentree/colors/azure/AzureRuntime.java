@@ -32,19 +32,25 @@ public class AzureRuntime {
 		return new AzureRuntime(context,context.initStandardObjects());
 	}
 
-	public Azure evaluate(final CharSequence script) {
-		final Object object = m_context.evaluateString(m_scope,script.toString(),"azure",0,null);
+	public Azure<?> evaluate(final CharSequence script) {
+		return wrap(m_context.evaluateString(m_scope,script.toString(),"azure",0,null));
+	}
+
+	public Azure<?> wrap(final Object object) {
+		if (object instanceof ScriptableObject) {
+			return new AzureBasicObject((ScriptableObject)object,this);
+		}
 		if (object instanceof Scriptable) {
-			final Scriptable target = (Scriptable)object;
-
-			if (object instanceof NativeObject) {
-				final NativeObject hoge = (NativeObject)object;
-			}
-
 			return new AzureObject<Scriptable>((Scriptable)object,this);
+		}
+		if (object instanceof String) {
+			return new AzurePrimitiveObject(new NativeString(object.toString(),m_scope));
 		}
 
 		return new AzurePrimitiveObject(object);
+	}
+	public AzureBasicObject getTopObject() {
+		return new AzureBasicObject((ScriptableObject)getNativeScope(),this);
 	}
 
 	public Context getNativeContext() {
@@ -84,6 +90,9 @@ public class AzureRuntime {
 			}
 
 			return hash;
+		}
+		else if (object instanceof NativeString) {
+			return object.toString();
 		}
 
 		return Context.jsToJava(object,Object.class);

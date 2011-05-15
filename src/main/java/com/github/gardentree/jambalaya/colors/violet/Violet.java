@@ -1,4 +1,4 @@
-package com.github.gardentree.colors.violet;
+package com.github.gardentree.jambalaya.colors.violet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +12,6 @@ import java.util.Set;
 
 import org.jruby.RubyArray;
 import org.jruby.RubyBoolean;
-import org.jruby.RubyClass;
 import org.jruby.RubyHash;
 import org.jruby.RubyMethod;
 import org.jruby.RubyNil;
@@ -34,6 +33,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
 import com.github.gardentree.colors.azure.AzureRuntime;
+import com.github.gardentree.colors.azure.NativeString;
 import com.github.gardentree.colors.crimson.CrimsonRuntime;
 import com.github.gardentree.jambalaya.SilenceException;
 
@@ -45,15 +45,6 @@ public class Violet {
 	private static final Set<Class<? extends RubyObject>> BASIC_RUBY_CLASS;
 	private final CrimsonRuntime	m_crimson;
 	private final AzureRuntime		m_azure;
-
-	static {
-		final Set<Class<? extends RubyObject>> work = new HashSet<Class<? extends RubyObject>>();
-		work.add(RubyString.class);
-		work.add(RubyNumeric.class);
-		work.add(RubyBoolean.class);
-
-		BASIC_RUBY_CLASS = Collections.unmodifiableSet(work);
-	}
 
 	public Violet(final AzureRuntime azure,final CrimsonRuntime crimson) {
 		m_azure		= azure;
@@ -132,31 +123,40 @@ public class Violet {
 			return null;
 		}
 		else if (isBasicClass(object)) {
-			return JavaEmbedUtils.rubyToJava(object);
+			if (object instanceof RubyString) {
+				return new NativeString(object.asJavaString(),m_azure.getNativeScope());
+			}
+			return Context.javaToJS(JavaEmbedUtils.rubyToJava(object),m_azure.getNativeScope());
 		}
 		else if (object instanceof RubyObject) {
-			final RubyObject real = (RubyObject)object;
+//			if ("Escher".equals(object.getMetaClass().toString())) {
+//				final RubyObject real = (RubyObject)object;
+//				System.out.println(real.getMetaClass().getVariableNameList());
+//			}
+			{
+				final RubyObject real = (RubyObject)object;
 
-			final Set<String> exclusion = new HashSet<String>(Arrays.asList("initialize"));
-			final ScriptableObject value = (ScriptableObject)m_azure.newObject();
-			for (final Entry<String,DynamicMethod> entry:real.getMetaClass().getMethods().entrySet()) {
-				if (exclusion.contains(entry)) {
-					continue;
-				}
-				final DynamicMethod method = entry.getValue();
-				final Function function = new FunctionAdapter(m_azure.getNativeScope(),"AzureCallback",new AzureCallback() {
-					@Override
-					public Object call(final Scriptable self,final Object[] arguments) {
-						final IRubyObject[] ruby = deriveCrimsonFromAll(arguments);
-						final IRubyObject result = method.call(m_crimson.getNativeRuntime().getCurrentContext(),object,object.getMetaClass(),"DynamicMethod",ruby);
-						return deriveAzureFrom(result);
+				final Set<String> exclusion = new HashSet<String>(Arrays.asList("initialize"));
+				final ScriptableObject value = (ScriptableObject)m_azure.newObject();
+				for (final Entry<String,DynamicMethod> entry:real.getMetaClass().getMethods().entrySet()) {
+					if (exclusion.contains(entry)) {
+						continue;
 					}
-				});
+					final DynamicMethod method = entry.getValue();
+					final Function function = new FunctionAdapter(m_azure.getNativeScope(),"AzureCallback",new AzureCallback() {
+						@Override
+						public Object call(final Scriptable self,final Object[] arguments) {
+							final IRubyObject[] ruby = deriveCrimsonFromAll(arguments);
+							final IRubyObject result = method.call(m_crimson.getNativeRuntime().getCurrentContext(),object,object.getMetaClass(),"DynamicMethod",ruby);
+							return deriveAzureFrom(result);
+						}
+					});
 
-				value.defineProperty(entry.getKey().toString(),function,ScriptableObject.PERMANENT);
+					value.defineProperty(entry.getKey().toString(),function,ScriptableObject.PERMANENT);
+				}
+
+				return value;
 			}
-
-			return value;
 		}
 
 		System.err.println(object.getClass());
@@ -177,7 +177,7 @@ public class Violet {
 		return false;
 	}
 
-	private final Map<IRubyObject,Scriptable> m_repository = new HashMap<IRubyObject,Scriptable>();
+	private final Map<IRubyObject,Scriptable> m_repository = new HashMap<IRubyObject,Scriptable>();//TODO
 	public IRubyObject[] deriveCrimsonFromAll(final Object[] objects) {
 		final IRubyObject[] values = new IRubyObject[objects.length];
 		for (int i = 0;i < values.length;i++) {
@@ -189,6 +189,9 @@ public class Violet {
 	public IRubyObject deriveCrimsonFrom(final Object object) {//TODO
 		if (!(object instanceof Scriptable)) {
 			return JavaEmbedUtils.javaToRuby(m_crimson.getNativeRuntime(),object);
+		}
+		if (object instanceof NativeString) {
+			return RubyString.newString(m_crimson.getNativeRuntime(),object.toString());
 		}
 
 		return convert((Scriptable)object,(Scriptable)object);
@@ -210,28 +213,47 @@ public class Violet {
 			return RubyArray.newArray(m_crimson.getNativeRuntime(),children);
 		}
 
-		final RubyClass clazz = RubyClass.newClass(m_crimson.getNativeRuntime(),m_crimson.getNativeRuntime().getObject());
-		final IRubyObject container = clazz.newInstance(m_crimson.getNativeRuntime().getCurrentContext(),Block.NULL_BLOCK);
-//		final IRubyObject container = m_crimson.evaluate("Object.new");
+		final Escher escher = Escher.newInstance(m_crimson);
+
+		///////////////////////////////
+		{
+			escher.defineSpecialMethod("[]=",new Callback() {
+				@Override
+				public Arity getArity() {
+					return Arity.TWO_REQUIRED;
+				}
+				@Override
+				public IRubyObject execute(final IRubyObject receiver,final IRubyObject[] arguments,final Block block) {
+					final String name = arguments[0].asJavaString();
+					final Object value = deriveAzureFrom(arguments[1]);
+
+					ScriptableObject.putProperty(object,name,value);
+					define(escher,name,value,self);
+
+					return null;
+				}
+			});
+		}
+		///////////////////////////////
 
 		if (object instanceof Function) {
-			container.getMetaClass().defineMethod("[]",new MethodCallback("[]",object,self,this));
+			escher.defineSpecialMethod("[]",new MethodCallback("[]",object,self,this));
 //			container.getMetaClass().defineMethod("_",new MethodCallback("_",object,self,this));
 		}
 		else {
-			//TODO Test!!!!!!!!!!!!!!!!!!!!!!
-			container.getMetaClass().defineMethod("[]",new Callback() {
-				@Override
-				public Arity getArity() {
-					return Arity.ONE_REQUIRED;
-				}
-
-				@Override
-				public IRubyObject execute(final IRubyObject receiver,final IRubyObject[] arguments,final Block block) {
-					return container.callMethod(m_crimson.getNativeRuntime().getCurrentContext(),arguments[0].toString());
-				}
-			});
-			container.getMetaClass().defineMethod("to_hash",new Callback() {
+//			//TODO Test!!!!!!!!!!!!!!!!!!!!!!
+//			container.getMetaClass().defineMethod("[]",new Callback() {
+//				@Override
+//				public Arity getArity() {
+//					return Arity.ONE_REQUIRED;
+//				}
+//
+//				@Override
+//				public IRubyObject execute(final IRubyObject receiver,final IRubyObject[] arguments,final Block block) {
+//					return container.callMethod(arguments[0].toString()).getNativeObject();
+//				}
+//			});
+			escher.defineSpecialMethod("to_hash",new Callback() {
 				@Override
 				public Arity getArity() {
 					return Arity.NO_ARGUMENTS;
@@ -239,20 +261,23 @@ public class Violet {
 
 				@Override
 				public IRubyObject execute(final IRubyObject receiver,final IRubyObject[] arguments,final Block block) {
-					final Map<RubyString,Object> map = new HashMap<RubyString,Object>();
+					final Map<RubyString,IRubyObject> map = new HashMap<RubyString,IRubyObject>();
 
 					final Set<String> inclusion = new HashSet<String>();
-					final Scriptable scriptable = m_repository.get(container);
+					final Scriptable scriptable = m_repository.get(escher.getNativeObject());
 					for (final Object id:scriptable.getIds()) {
 						inclusion.add(id.toString());
 					}
 
-					for (final Entry<String,DynamicMethod> entry:container.getMetaClass().getMethods().entrySet()) {
-						if (!inclusion.contains(entry.getKey())) {
-							continue;
-						}
-
-						map.put(RubyString.newString(m_crimson.getNativeRuntime(),entry.getKey()),entry.getValue().call(m_crimson.getNativeRuntime().getCurrentContext(),container,container.getMetaClass(),"hash!!!",Block.NULL_BLOCK));
+//					for (final Entry<String,DynamicMethod> entry:escher.getKeys()) {
+//					if (!inclusion.contains(entry.getKey())) {
+//						continue;
+//					}
+//
+//					map.put(RubyString.newString(m_crimson.getNativeRuntime(),entry.getKey()),entry.getValue().call(m_crimson.getNativeRuntime().getCurrentContext(),container.getNativeObject(),container.getMetaClass().getNativeObject(),"hash!!!",Block.NULL_BLOCK));
+//				}
+					for (final Entry<String,IRubyObject> entry:escher.getFields().entrySet()) {
+						map.put(RubyString.newString(m_crimson.getNativeRuntime(),entry.getKey()),entry.getValue());
 					}
 
 					return new RubyHash(m_crimson.getNativeRuntime(),map,m_crimson.getNativeRuntime().getNil());
@@ -261,14 +286,20 @@ public class Violet {
 		}
 
 		if (object.getPrototype() != null) {
-			structure(object.getPrototype(),self,container);
+			structure(object.getPrototype(),self,escher);
 		}
-		structure(object,self,container);
+		structure(object,self,escher);
 
-		return container;
+		return escher.getNativeObject();
 	}
 
-	private void structure(final Scriptable object,final Scriptable self,final IRubyObject container) {
+	private void structure(final Scriptable object,final Scriptable self,final Escher container) {
+//		if (object instanceof NativeString) {
+//			final NativeString real = (NativeString)object;
+//
+//			return;
+//		}
+
 		final Object[] ids;
 		if (object instanceof ScriptableObject) {
 			ids = ((ScriptableObject)object).getAllIds();
@@ -288,23 +319,38 @@ public class Violet {
 //				continue;
 //			}
 
-			if (child instanceof Scriptable) {
-				if (child instanceof Function) {//TODO Test!!!!!!!!!!!!!!!!!
-					container.getMetaClass().defineMethod(name,new MethodCallback(name,(Function)child,self,this));
-				}
-				else {
-					final IRubyObject value = convert((Scriptable)child,self);
-					container.getMetaClass().defineMethod(name,new SimpleCallback(name,value));
-				}
-
-			}
-			else {
-				final IRubyObject value = JavaEmbedUtils.javaToRuby(m_crimson.getNativeRuntime(),child);
-				container.getMetaClass().defineMethod(name,new SimpleCallback(name,value));
-			}
+			define(container,name,child,self);
 		}
 	}
 
+	private void define(final Escher escher,final String name,final Object value,final Scriptable self) {
+		if (value instanceof Scriptable) {
+			if (value instanceof Function) {//TODO Test!!!!!!!!!!!!!!!!!
+				escher.defineMethod(name,new MethodCallback(name,(Function)value,self,this));
+			}
+//			else if (value instanceof NativeString) {
+//				escher.defineField(name,JavaEmbedUtils.javaToRuby(m_crimson.getNativeRuntime(),value.toString()));
+//			}
+			else {
+				escher.defineField(name,convert((Scriptable)value,self));
+			}
+		}
+		else {
+			escher.defineField(name,JavaEmbedUtils.javaToRuby(m_crimson.getNativeRuntime(),value));
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	static {
+		final Set<Class<? extends RubyObject>> work = new HashSet<Class<? extends RubyObject>>();
+		work.add(RubyString.class);
+		work.add(RubyNumeric.class);
+		work.add(RubyBoolean.class);
+
+		BASIC_RUBY_CLASS = Collections.unmodifiableSet(work);
+	}
+
+	///////////////////////////////////////////////////////////////////////////
 	private static final class MethodCallback implements Callback {
 		private final String		m_name;
 		private final Scriptable	m_object;
@@ -336,7 +382,6 @@ public class Violet {
 				return m_violet.deriveCrimsonFrom(result);
 			}
 			catch (final RuntimeException ex) {
-				ex.printStackTrace();
 				System.err.println(m_name + ":" + ex.getMessage());
 				throw new SilenceException(ex);
 			}

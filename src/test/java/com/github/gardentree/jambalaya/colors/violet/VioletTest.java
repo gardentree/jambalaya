@@ -17,8 +17,8 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
 import com.github.gardentree.colors.azure.AzureRuntime;
+import com.github.gardentree.colors.azure.NativeString;
 import com.github.gardentree.colors.crimson.CrimsonRuntime;
-import com.github.gardentree.colors.violet.Violet;
 import com.github.gardentree.utilities.Entirety;
 import com.github.gardentree.utilities.Resource;
 
@@ -74,6 +74,13 @@ public class VioletTest {
 
 	///////////////////////////////////////////////////////////////////////////deriveAzure
 	@Test
+	public void deriveAzureFromForString() {
+		final Object actual = m_target.deriveAzureFrom(m_crimson.evaluate("'abcde'"));
+
+		assertEquals(NativeString.class		,actual.getClass());
+		assertEquals("abcde"				,m_azure.deriveJavaFrom(actual));
+	}
+	@Test
 	public void deriveAzureFromForArray() {
 		final Object actual = m_target.deriveAzureFrom(m_crimson.evaluate("[1,2,3]"));
 
@@ -97,12 +104,21 @@ public class VioletTest {
 		assertEquals(1L,actual);
 	}
 	@Test
-	public void deriveAzureFromForObject() throws IOException, URISyntaxException {
+	public void deriveAzureFromForObject() {
 		final Object actual = m_target.deriveAzureFrom(m_crimson.evaluate(Entirety.getFromFile(Resource.getUrl("object.rb"))));
 
 		assertTrue(actual instanceof ScriptableObject);
 		final ScriptableObject object = (ScriptableObject)actual;
 		final Scriptable scope = m_azure.getNativeScope();
-		assertEquals("f",((Function)object.get("function",scope)).call(m_azure.getNativeContext(),m_azure.getNativeScope(),object,new Object[0]));
+		final Object result = ((Function)object.get("function",scope)).call(m_azure.getNativeContext(),m_azure.getNativeScope(),object,new Object[0]);
+		assertEquals("f",result.toString());
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	@Test
+	public void testSync() {
+		final IRubyObject document = m_crimson.evaluate(Resource.getUrl("sync.rb"));
+
+		assertEquals("bcde",CrimsonRuntime.deriveJavaFrom(document));
 	}
 }

@@ -1,4 +1,4 @@
-package com.github.gardentree.colors.violet;
+package com.github.gardentree.jambalaya.colors.violet;
 
 import java.lang.reflect.Member;
 
@@ -26,7 +26,8 @@ class BlockAdapter extends FunctionObject {
     public Object invoke(final Context context,final Scriptable self,final Object[] arguments) throws Exception {
     	final IRubyObject[] rubies = m_violet.deriveCrimsonFromAll(arguments);
         try {
-			return m_violet.deriveAzureFrom(m_block.call(m_violet.getCrimson().getNativeRuntime().getCurrentContext(),rubies,null));
+			final IRubyObject result = m_block.call(m_violet.getCrimson().getNativeRuntime().getCurrentContext(),rubies,null);
+			return m_violet.deriveAzureFrom(result);
 		}
 		catch (RuntimeException ex) {
 			System.err.println(ex.getMessage());
