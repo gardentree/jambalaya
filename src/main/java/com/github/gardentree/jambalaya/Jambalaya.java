@@ -21,6 +21,7 @@ public class Jambalaya {
 	private final Violet m_violet = new Violet(AzureRuntime.newInstance(),new CrimsonRuntime(Ruby.newInstance()));
 	private final AzureRuntime m_azure = m_violet.getAzure();
 	private final IRubyObject	m_top;
+
 	public Jambalaya() {
 		m_top = m_violet.deriveCrimsonFrom(m_azure.getTopObject().getNativeObject());
 	}
@@ -60,7 +61,9 @@ public class Jambalaya {
 
 //			return JavaScriptObject.define((AzurePrimitiveObject)object);
 		}
-		catch (final Exception cause) {
+		catch (final Throwable cause) {
+			cause.printStackTrace();
+
 			throw new SilenceException(cause);
 		}
 //		finally {

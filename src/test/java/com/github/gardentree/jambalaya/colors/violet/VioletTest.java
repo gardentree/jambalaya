@@ -2,8 +2,8 @@ package com.github.gardentree.jambalaya.colors.violet;
 
 import static org.junit.Assert.*;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.jruby.RubyFloat;
 import org.jruby.RubyObject;
@@ -63,7 +63,7 @@ public class VioletTest {
 		assertEquals("foo"				,actual.callMethod(m_context,"[]").toString());
 	}
 	@Test
-	public void deriveCrimsonFromForPrototype() throws IOException, URISyntaxException {
+	public void deriveCrimsonFromForPrototype() {
 		final IRubyObject actual = m_target.deriveCrimsonFrom(m_azure.evaluate(Entirety.getFromFile(Resource.getUrl("prototype.js"))).getNativeObject());
 
 		assertEquals(RubyObject.class	,actual.getClass());
@@ -120,5 +120,16 @@ public class VioletTest {
 		final IRubyObject document = m_crimson.evaluate(Resource.getUrl("sync.rb"));
 
 		assertEquals("bcde",CrimsonRuntime.deriveJavaFrom(document));
+	}
+	@Test
+	public void testMap() {
+		final IRubyObject document = m_crimson.evaluate(Resource.getUrl("map_spec.rb"));
+
+		final Map<String,Object> expected = new HashMap<String,Object>() {{
+			put("lat"	,123D);
+			put("lng"	,456D);
+			put("zoom"	,789D);
+		}};
+		assertEquals(expected,CrimsonRuntime.deriveJavaFrom(document));
 	}
 }

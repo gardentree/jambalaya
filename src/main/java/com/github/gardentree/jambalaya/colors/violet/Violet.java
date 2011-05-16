@@ -25,10 +25,12 @@ import org.jruby.runtime.Arity;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.BlockBody;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.jruby.runtime.builtin.Variable;
 import org.jruby.runtime.callback.Callback;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeJavaPackage;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
@@ -134,14 +136,16 @@ public class Violet {
 //				System.out.println(real.getMetaClass().getVariableNameList());
 //			}
 			{
-				final RubyObject real = (RubyObject)object;
-
-				final Set<String> exclusion = new HashSet<String>(Arrays.asList("initialize"));
 				final ScriptableObject value = (ScriptableObject)m_azure.newObject();
+				final RubyObject real = (RubyObject)object;
+				for (final Variable<IRubyObject> variable:real.getInstanceVariableList()) {
+					value.defineProperty(variable.getName().substring(1),deriveAzureFrom(variable.getValue()),ScriptableObject.PERMANENT);
+				}
+
 				for (final Entry<String,DynamicMethod> entry:real.getMetaClass().getMethods().entrySet()) {
-					if (exclusion.contains(entry)) {
-						continue;
-					}
+//					if (exclusion.contains(entry)) {
+//						continue;
+//					}
 					final DynamicMethod method = entry.getValue();
 					final Function function = new FunctionAdapter(m_azure.getNativeScope(),"AzureCallback",new AzureCallback() {
 						@Override
@@ -177,7 +181,7 @@ public class Violet {
 		return false;
 	}
 
-	private final Map<IRubyObject,Scriptable> m_repository = new HashMap<IRubyObject,Scriptable>();//TODO
+//	private final Map<IRubyObject,Scriptable> m_repository = new HashMap<IRubyObject,Scriptable>();//TODO
 	public IRubyObject[] deriveCrimsonFromAll(final Object[] objects) {
 		final IRubyObject[] values = new IRubyObject[objects.length];
 		for (int i = 0;i < values.length;i++) {
@@ -198,8 +202,7 @@ public class Violet {
 	}
 	private IRubyObject convert(final Scriptable object,final Scriptable self) {
 		final IRubyObject crimson = fromAzureToCrimson(object,self);
-
-		m_repository.put(crimson,object);
+//		m_repository.put(crimson,object);
 
 		return crimson;
 	}
@@ -213,8 +216,7 @@ public class Violet {
 			return RubyArray.newArray(m_crimson.getNativeRuntime(),children);
 		}
 
-		final Escher escher = Escher.newInstance(m_crimson);
-
+		final Escher escher = Escher.newInstance(m_crimson,object);
 		///////////////////////////////
 		{
 			escher.defineSpecialMethod("[]=",new Callback() {
@@ -264,8 +266,8 @@ public class Violet {
 					final Map<RubyString,IRubyObject> map = new HashMap<RubyString,IRubyObject>();
 
 					final Set<String> inclusion = new HashSet<String>();
-					final Scriptable scriptable = m_repository.get(escher.getNativeObject());
-					for (final Object id:scriptable.getIds()) {
+//					final Scriptable scriptable = m_repository.get(escher.getNativeObject());
+					for (final Object id:escher.getSource().getIds()) {
 						inclusion.add(id.toString());
 					}
 
@@ -295,9 +297,7 @@ public class Violet {
 
 	private void structure(final Scriptable object,final Scriptable self,final Escher container) {
 //		if (object instanceof NativeString) {
-//			final NativeString real = (NativeString)object;
-//
-//			return;
+//			System.out.println("NativeString:"+ object);
 //		}
 
 		final Object[] ids;
@@ -313,6 +313,10 @@ public class Violet {
 			}
 
 			final Object child = m_azure.inspect(object,id);
+			if (child instanceof NativeJavaPackage) {
+				continue;
+			}
+
 			final String name = id.toString();
 //			if (methods.contains(name)) {//TODO
 ////				System.err.println(name);

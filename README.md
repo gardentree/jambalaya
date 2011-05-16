@@ -32,7 +32,7 @@ end
 (要JRubyのインストール)
 
 <pre>
-jruby -S gem install jambalaya-rspec
+jruby --1.9 -S gem install jambalaya-rspec
 
 jruby -S rspec underscore_spec.rb
 </pre>
