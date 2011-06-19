@@ -12,5 +12,5 @@ end
 jambalaya.top[:box] = Box.new
 
 script = "target/test-classes/com/github/gardentree/jambalaya/colors/violet/sync.js"
-target = jambalaya.squeeze(script,"exports",[])
+target = jambalaya.squeeze(script,"exports")
 target.first

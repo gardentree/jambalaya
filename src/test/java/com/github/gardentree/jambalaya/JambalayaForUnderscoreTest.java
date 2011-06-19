@@ -27,67 +27,67 @@ import com.github.gardentree.utilities.Resource;
 public class JambalayaForUnderscoreTest {
 	///////////////////////////////////
 	@Test
-	public void each_array() throws IOException, URISyntaxException {
+	public void each_array() {
 		final IRubyObject result = execute();
 
 		assertArrayEquals(new Object[]{1L,2L,3L},(Object[])CrimsonRuntime.deriveJavaFrom(result));
 	}
 	@Test
-	public void each_hash() throws IOException, URISyntaxException {
+	public void each_hash() {
 		final IRubyObject actual = execute();
 
 		assertArrayEquals(new Object[]{1L,2L,3L},(Object[])CrimsonRuntime.deriveJavaFrom(actual));
 	}
 	@Test
-	public void map_array() throws IOException, URISyntaxException {
+	public void map_array() {
 		final IRubyObject actual = execute();
 
 		assertArrayEquals(new Object[]{4L,6L,8L},(Object[])CrimsonRuntime.deriveJavaFrom(actual));
 	}
 	@Test
-	public void reduce() throws IOException, URISyntaxException {
+	public void reduce() {
 		final IRubyObject actual = execute();
 
 		assertEquals(6L,CrimsonRuntime.deriveJavaFrom(actual));
 	}
 	@Test
-	public void reduceRight() throws IOException, URISyntaxException {
+	public void reduceRight() {
 		final IRubyObject actual = execute();
 
 		assertArrayEquals(new Object[]{4L,5L,2L,3L,0L,1L},(Object[])CrimsonRuntime.deriveJavaFrom(actual));
 	}
 	@Test
-	public void all() throws IOException, URISyntaxException {
+	public void all() {
 		final IRubyObject actual = execute();
 
 		assertEquals(false,CrimsonRuntime.deriveJavaFrom(actual));
 	}
 	@Test
-	public void invoke() throws IOException, URISyntaxException {
+	public void invoke() {
 		final IRubyObject actual = execute();
 
 		assertArrayEquals(new Object[][]{{1L,5L,7L},{1L,2L,3L}},(Object[])CrimsonRuntime.deriveJavaFrom(actual));
 	}
 	@Test
-	public void toArray() throws IOException, URISyntaxException {
+	public void toArray() {
 		final IRubyObject actual = execute();
 
 		assertArrayEquals(new Object[]{1D,2L,3L},(Object[])CrimsonRuntime.deriveJavaFrom(actual));
 	}
 	@Test
-	public void times() throws IOException, URISyntaxException {
+	public void times() {
 		final IRubyObject actual = execute();
 
 		assertEquals(3L,CrimsonRuntime.deriveJavaFrom(actual));
 	}
 	@Test
-	public void value() throws IOException, URISyntaxException {
+	public void value() {
 		final IRubyObject actual = execute();
 
 		assertArrayEquals(new Object[]{1L,2L,3L},(Object[])CrimsonRuntime.deriveJavaFrom(actual));
 	}
 	@Test
-	public void max() throws IOException, URISyntaxException {
+	public void max() {
 		final IRubyObject actual = execute();
 
 		final Map<String,Object> expected = new LinkedHashMap<String,Object>();
@@ -97,72 +97,72 @@ public class JambalayaForUnderscoreTest {
 		assertEquals(expected,CrimsonRuntime.deriveJavaFrom(actual));
 	}
 	@Test
-	public void isRegExp() throws IOException, URISyntaxException {
+	public void isRegExp() {
 		final IRubyObject actual = execute();
 
 		assertEquals(true,CrimsonRuntime.deriveJavaFrom(actual));
 	}
 	@Test
-	public void testClone() throws IOException, URISyntaxException {
+	public void testClone() {
 		final IRubyObject actual = execute(Resource.getUrl("underscore/clone.rb"));
 
 		assertEquals("{name=moe}",CrimsonRuntime.deriveJavaFrom(actual).toString());
 	}
 	@Test @Ignore
-	public void isEqual() throws IOException, URISyntaxException {
+	public void isEqual() {
 		final IRubyObject actual = execute();
 
 		assertEquals(true,CrimsonRuntime.deriveJavaFrom(actual));
 	}
 	@Test
-	public void zip() throws IOException, URISyntaxException {
+	public void zip() {
 		final IRubyObject actual = execute();
 
 		assertArrayEquals(new Object[][]{{"moe",30L,true},{"larry",40L,false},{"curly",50L,false}},(Object[])CrimsonRuntime.deriveJavaFrom(actual));
 	}
 	@Test
-	public void tap() throws IOException, URISyntaxException {
+	public void tap() {
 		final IRubyObject actual = execute();
 
 		assertArrayEquals(new Object[][]{{2L,200L},{4L,40000L}},(Object[])CrimsonRuntime.deriveJavaFrom(actual));
 	}
 	@Test
-	public void bind() throws IOException, URISyntaxException {
+	public void bind() {
 		final IRubyObject actual = execute();
 
 		assertEquals("hi: moe",CrimsonRuntime.deriveJavaFrom(actual));
 	}
 	@Test
-	public void functions() throws IOException, URISyntaxException {
+	public void functions() {
 		final IRubyObject actual = execute();
 
 		final Set functions = new HashSet(Arrays.asList((Object[])CrimsonRuntime.deriveJavaFrom(actual)));
 		assertTrue(functions.containsAll(Arrays.asList("each","first","bind","keys","noConflict","[]","VERSION")));
 	}
 	@Test
-	public void bindAll() throws IOException, URISyntaxException {
+	public void bindAll() {
 		final IRubyObject actual = execute();
 
 		assertEquals("clicked: underscore&hovering: underscore",CrimsonRuntime.deriveJavaFrom(actual));
 	}
 	@Test @Ignore
-	public void isUndefined() throws IOException, URISyntaxException {
+	public void isUndefined() {
 		final IRubyObject actual = execute();
 
 		assertEquals(true,CrimsonRuntime.deriveJavaFrom(actual));
 	}
 	@Test
-	public void isDate() throws IOException, URISyntaxException {
+	public void isDate() {
 		final IRubyObject actual = execute();
 
 		assertEquals(true,CrimsonRuntime.deriveJavaFrom(actual));
 	}
 
 	///////////////////////////////////
-	private IRubyObject execute() throws IOException,URISyntaxException {
+	private IRubyObject execute() {
 		return execute(Resource.getUrl("underscore/" + Calling.fromMethodName(1) + ".rb"));
 	}
-	private IRubyObject execute(final URL actingscript) throws IOException,URISyntaxException {
+	private IRubyObject execute(final URL actingscript) {
 		final CrimsonRuntime runtime = CrimsonRuntime.newInstance();
 
 		return runtime.evaluate(Entirety.getFromFile(actingscript));

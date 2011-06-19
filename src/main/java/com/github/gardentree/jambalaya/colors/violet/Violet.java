@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.jruby.RubyArray;
 import org.jruby.RubyBoolean;
@@ -30,6 +31,7 @@ import org.jruby.runtime.callback.Callback;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.NativeJavaPackage;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
@@ -38,13 +40,16 @@ import com.github.gardentree.colors.azure.AzureRuntime;
 import com.github.gardentree.colors.azure.NativeString;
 import com.github.gardentree.colors.crimson.CrimsonRuntime;
 import com.github.gardentree.jambalaya.SilenceException;
+import com.github.gardentree.utilities.MixedUtility;
 
 /**
  * @author garden_tree
  * @since 2011/05/03
  */
 public class Violet {
+	private static final Logger LOGGER = Logger.getLogger(Violet.class.toString());
 	private static final Set<Class<? extends RubyObject>> BASIC_RUBY_CLASS;
+	private static final Set<String> EXCLUSION_METHODS;
 	private final CrimsonRuntime	m_crimson;
 	private final AzureRuntime		m_azure;
 
@@ -131,6 +136,7 @@ public class Violet {
 			return Context.javaToJS(JavaEmbedUtils.rubyToJava(object),m_azure.getNativeScope());
 		}
 		else if (object instanceof RubyObject) {
+//			System.out.println(object);
 //			if ("Escher".equals(object.getMetaClass().toString())) {
 //				final RubyObject real = (RubyObject)object;
 //				System.out.println(real.getMetaClass().getVariableNameList());
@@ -191,6 +197,9 @@ public class Violet {
 		return values;
 	}
 	public IRubyObject deriveCrimsonFrom(final Object object) {//TODO
+		return deriveCrimsonFrom(object,0);
+	}
+	private IRubyObject deriveCrimsonFrom(final Object object,final int depth) {
 		if (!(object instanceof Scriptable)) {
 			return JavaEmbedUtils.javaToRuby(m_crimson.getNativeRuntime(),object);
 		}
@@ -198,15 +207,10 @@ public class Violet {
 			return RubyString.newString(m_crimson.getNativeRuntime(),object.toString());
 		}
 
-		return convert((Scriptable)object,(Scriptable)object);
+		return fromAzureToCrimson((Scriptable)object,(Scriptable)object,depth);
 	}
-	private IRubyObject convert(final Scriptable object,final Scriptable self) {
-		final IRubyObject crimson = fromAzureToCrimson(object,self);
-//		m_repository.put(crimson,object);
-
-		return crimson;
-	}
-	private IRubyObject fromAzureToCrimson(final Scriptable object,final Scriptable self) {
+	private IRubyObject fromAzureToCrimson(final Scriptable object,final Scriptable self,final int depth) {
+		LOGGER.finest(MixedUtility.repeat("  ",depth) + object.getClassName());
 		if (object instanceof NativeArray) {//TODO Test!!!!!!!!!!!!!
 			final NativeArray array = (NativeArray)object;
 			final IRubyObject[] children = new IRubyObject[(int)array.getLength()];
@@ -214,6 +218,9 @@ public class Violet {
 				children[i] = deriveCrimsonFrom(array.get(i,array));
 			}
 			return RubyArray.newArray(m_crimson.getNativeRuntime(),children);
+		}
+		if (object instanceof NativeJavaObject) {
+			return m_crimson.deriveRubyFrom(object);
 		}
 
 		final Escher escher = Escher.newInstance(m_crimson,object);
@@ -230,7 +237,7 @@ public class Violet {
 					final Object value = deriveAzureFrom(arguments[1]);
 
 					ScriptableObject.putProperty(object,name,value);
-					define(escher,name,value,self);
+					define(escher,name,value,self,depth);
 
 					return null;
 				}
@@ -288,14 +295,14 @@ public class Violet {
 		}
 
 		if (object.getPrototype() != null) {
-			structure(object.getPrototype(),self,escher);
+			structure(object.getPrototype(),self,escher,depth + 1);
 		}
-		structure(object,self,escher);
+		structure(object,self,escher,depth + 1);
 
 		return escher.getNativeObject();
 	}
 
-	private void structure(final Scriptable object,final Scriptable self,final Escher container) {
+	private void structure(final Scriptable object,final Scriptable self,final Escher container,final int depth) {
 //		if (object instanceof NativeString) {
 //			System.out.println("NativeString:"+ object);
 //		}
@@ -307,27 +314,28 @@ public class Violet {
 		else {
 			ids = object.getIds();
 		}
+
 		for (final Object id:ids) {
-			if ("prototype".equals(id)) {
+			///////////////////////////
+			if (EXCLUSION_METHODS.contains(id)) {
 				continue;
 			}
-
 			final Object child = m_azure.inspect(object,id);
 			if (child instanceof NativeJavaPackage) {
 				continue;
 			}
+			///////////////////////////
 
 			final String name = id.toString();
 //			if (methods.contains(name)) {//TODO
 ////				System.err.println(name);
 //				continue;
 //			}
-
-			define(container,name,child,self);
+			define(container,name,child,self,depth);
 		}
 	}
 
-	private void define(final Escher escher,final String name,final Object value,final Scriptable self) {
+	private void define(final Escher escher,final String name,final Object value,final Scriptable self,final int depth) {
 		if (value instanceof Scriptable) {
 			if (value instanceof Function) {//TODO Test!!!!!!!!!!!!!!!!!
 				escher.defineMethod(name,new MethodCallback(name,(Function)value,self,this));
@@ -336,7 +344,7 @@ public class Violet {
 //				escher.defineField(name,JavaEmbedUtils.javaToRuby(m_crimson.getNativeRuntime(),value.toString()));
 //			}
 			else {
-				escher.defineField(name,convert((Scriptable)value,self));
+				escher.defineField(name,fromAzureToCrimson((Scriptable)value,self,depth));
 			}
 		}
 		else {
@@ -391,22 +399,23 @@ public class Violet {
 			}
 		}
 	}
-
-	private static final class SimpleCallback implements Callback {
-		private final String		m_name;
-		private final IRubyObject	m_value;
-
-		private SimpleCallback(final String name,final IRubyObject value) {
-			m_name	= name;
-			m_value = value;
-		}
-		@Override
-		public Arity getArity() {
-			return Arity.noArguments();
-		}
-		@Override
-		public IRubyObject execute(final IRubyObject receiver,final IRubyObject[] arguments,final Block block) {
-			return m_value;
-		}
+	///////////////////////////////////////////////////////////////////////////
+	static {
+//		EXCLUSION_METHODS = new HashSet<String>(Arrays.asList(
+//			 "constructor"
+//			,"toString"
+//			,"toLocaleString"
+//			,"valueOf"
+//			,"hasOwnProperty"
+//			,"propertyIsEnumerable"
+//			,"isPrototypeOf"
+//			,"toSource"
+//			,"__defineGetter__"
+//			,"__defineSetter__"
+//			,"__lookupGetter__"
+//			,"__lookupSetter__"
+//			,"prototype"
+//		));
+		EXCLUSION_METHODS = Collections.EMPTY_SET;
 	}
 }

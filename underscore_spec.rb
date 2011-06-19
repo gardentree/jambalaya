@@ -11,7 +11,7 @@ require 'jambalaya-rspec'
 describe 'Underscore.js' do
   before do
     @jambalaya = Jambalaya.new
-    @_ = @jambalaya.squeeze("underscore.js","this._",["require 'rubygems'","require 'rspec'"])
+    @_ = @jambalaya.squeeze("underscore.js","this._","require 'rubygems'","require 'rspec'")
   end
 
   describe 'Collection Functions (Arrays or Objects)' do

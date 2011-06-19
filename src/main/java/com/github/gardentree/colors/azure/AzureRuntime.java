@@ -1,5 +1,6 @@
 package com.github.gardentree.colors.azure;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -12,6 +13,9 @@ import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
+import com.github.gardentree.jambalaya.SilenceException;
+import com.github.gardentree.utilities.Entirety;
+
 /**
  * @author garden_tree
  * @since 2011/04/29
@@ -19,17 +23,22 @@ import org.mozilla.javascript.ScriptableObject;
 public class AzureRuntime {
 	private final Context		m_context;
 	private final Scriptable	m_scope;
+	private final File			m_workspace;
 
-	public AzureRuntime(final Context context,final Scriptable scope) {
+	public AzureRuntime(final Context context,final Scriptable scope,final File workspace) {
 		m_context	= context;
 		m_scope		= scope;
+		m_workspace	= workspace;
 	}
 
 	public static AzureRuntime newInstance() {
+		return newInstance("");
+	}
+	public static AzureRuntime newInstance(final String workspace) {
 		final Context context = new ContextFactory().enterContext();
 //		context.setLanguageVersion(Context.VERSION_1_7);
 
-		return new AzureRuntime(context,context.initStandardObjects());
+		return new AzureRuntime(context,context.initStandardObjects(),new File(workspace));
 	}
 
 	public Azure<?> evaluate(final CharSequence script) {
@@ -58,6 +67,28 @@ public class AzureRuntime {
 	}
 	public Scriptable getNativeScope() {
 		return m_scope;
+	}
+
+	public Object require(final String pathname,final String specifier) {
+		try {
+			final StringBuilder builder = new StringBuilder();
+			builder.append("(function(exports){");
+			builder.append(Entirety.getFromFile(new File(pathname).toURI().toURL()));
+			builder.append(String.format("return %s;",specifier));
+			builder.append("})({})");
+
+			final Azure<?> object = evaluate(builder);
+
+			return object.getNativeObject();
+		}
+		catch (final Throwable cause) {
+			cause.printStackTrace();
+
+			throw new SilenceException(cause);
+		}
+//		finally {
+//			Context.exit();
+//		}
 	}
 
 	public Object[] deriveJavaFromAll(final Object[] objects) {
