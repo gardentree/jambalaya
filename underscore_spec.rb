@@ -58,8 +58,8 @@ describe 'Underscore.js' do
       subject {@_.detect([1,2,3,4,5,6]){|number,index,context|number % 2 == 0}}
       it {should == 2}
     end
-    describe 'select' do
-      subject {@_.select([1,2,3,4,5,6]){|number,index,context|number % 2 == 0}}
+    describe 'filter' do
+      subject {@_.filter([1,2,3,4,5,6]){|number,iterator,context|number % 2 == 0}}
       it {should == [2,4,6]}
     end
     describe 'reject' do
